@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>3D Model Animated</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<link type="text/css" rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+</head>
+
+<body>
+  
+  <div>
+    <input type="range" min="-50" max="50" value="0" id="myRange">
+    <input type="range" min="-50" max="50" value="0" id="myRange1">
+  </div>
+	<script type="module">
+    import { ARButton } from 'https://unpkg.com/three@0.126.0/examples/jsm/webxr/ARButton.js';
+    
+		let camera, scene, renderer;
+		let loader;
+    let model;
+    var x;
+    var y;
+		init();
+		animate();
+    
+    
+    
+    
+
+		function init() {
+			const container = document.createElement('div');
+			document.body.appendChild(container);
+
+			scene = new THREE.Scene();
+
+			camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 40);
+
+			renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.xr.enabled = true;
+			container.appendChild(renderer.domElement);
+
+			var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+			light.position.set(0.5, 1, 0.25);
+			scene.add(light);
+      const modelUrl = 'https://raw.githubusercontent.com/immersive-web/webxr-samples/main/media/gltf/space/space.gltf';
+      
+			loader = new THREE.GLTFLoader();
+			loader.load(
+				'model.glb',
+				function (gltf) {
+          let slider = document.getElementById("myRange");
+          let slider1 = document.getElementById("myRange1");
+          model = gltf.scene;
+          model.position.z = -50;
+          slider.oninput = function() {
+            var get = slider.value;
+            model.position.y = this.value;
+          }
+          slider1.oninput = function() {
+            var get = slider1.value;
+            model.position.x = this.value;
+          }
+					scene.add(model);
+          console.log("Model added to scene");
+				},
+				function (xhr) {
+	      },
+				function (error) {
+					console.error(error);
+				}
+			);
+
+			document.body.appendChild(ARButton.createButton(renderer));
+
+			window.addEventListener('resize', onWindowResize, false);
+		}
+
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+		}
+
+		function animate() {
+			renderer.setAnimationLoop(render);
+		}
+
+		function render() {
+      rotateModel();
+			renderer.render(scene, camera);
+		}
+    
+    let degrees = 0;
+    
+    function rotateModel() {
+      if (model !== undefined) {
+        degrees = degrees + 0.2; 
+        model.rotation.y = THREE.Math.degToRad(degrees);
+      }
+    }
+
+	</script>
+</body>
+
+</html>
