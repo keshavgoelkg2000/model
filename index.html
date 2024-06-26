@@ -22,8 +22,7 @@
 		let camera, scene, renderer;
 		let loader;
     let model;
-    var x;
-    var y;
+
 		init();
 		animate();
     
@@ -42,20 +41,27 @@
 			renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 			renderer.setPixelRatio(window.devicePixelRatio);
 			renderer.setSize(window.innerWidth, window.innerHeight);
-			renderer.xr.enabled = true;
+			renderer.xr.enabled = true; // we have to enable the renderer for webxr
 			container.appendChild(renderer.domElement);
 
 			var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
 			light.position.set(0.5, 1, 0.25);
 			scene.add(light);
+
+      // Add a GLTF model to the scene
       const modelUrl = 'https://raw.githubusercontent.com/immersive-web/webxr-samples/main/media/gltf/space/space.gltf';
       
 			loader = new THREE.GLTFLoader();
 			loader.load(
-				'model.glb',
+				modelUrl,
 				function (gltf) {
           let slider = document.getElementById("myRange");
           let slider1 = document.getElementById("myRange1");
+    
+    // output.innerHTML = slider.value; // Display the default slider value
+
+// // Update the current slider value (each time you drag the slider handle)
+      
           model = gltf.scene;
           model.position.z = -50;
           slider.oninput = function() {
@@ -70,6 +76,7 @@
           console.log("Model added to scene");
 				},
 				function (xhr) {
+		      // console.log((xhr.loaded / xhr.total * 100) + '% loaded' );
 	      },
 				function (error) {
 					console.error(error);
@@ -97,12 +104,17 @@
 			renderer.render(scene, camera);
 		}
     
-    let degrees = 0;
+    let degrees = 0; // the angle to rotate our model
     
     function rotateModel() {
       if (model !== undefined) {
+        // valid degrees range from 0-360
+        // Once over 360 three.js will treat 360 as 0, 361 as 1, 362 as 2 and so on
         degrees = degrees + 0.2; 
-        model.rotation.y = THREE.Math.degToRad(degrees);
+        model.rotation.y = THREE.Math.degToRad(degrees); // we convert degrees to a radian value
+        
+        // more math utility functions can be found here:
+        // https://threejs.org/docs/#api/en/math/MathUtils
       }
     }
 
